@@ -59,9 +59,10 @@ public class ScreenMeasure extends Service {
 
         isRunning = true;
         minutes = 60 * 5;
-        Runnable screenCheck = new Runnable() {
 
-            public void run() {
+        final Handler mhandler = new Handler();
+        mhandler.postDelayed(new Runnable(){
+            public void run(){
                 PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
                 boolean isScreenOn = pm.isScreenOn();
                 //Log.d("wesley_d", "" + isScreenOn);
@@ -76,6 +77,7 @@ public class ScreenMeasure extends Service {
                     sessionStarted = true;
                 }
                 if(!sessionStarted){
+                    Log.d("Wesley_d", "sending signal");
                     updateSession(context, ""+MainActivity.code.getText());
                 }
 
@@ -92,11 +94,9 @@ public class ScreenMeasure extends Service {
                 if(sessionPaused == 30){
                     endSession(context, ""+MainActivity.code.getText());
                 }
-    }
-};
-
-        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-                executor.scheduleAtFixedRate(screenCheck, 0, 1, TimeUnit.SECONDS);
+                mhandler.postDelayed(this, 1000);
+            }
+        }, 1000);
 
     }
     void endSession(Context context, String code) {
