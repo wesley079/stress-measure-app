@@ -75,6 +75,10 @@ public class ScreenMeasure extends Service {
                 if(MainActivity.isAirplaneModeOn(context) && !sessionStarted){
                     sessionStarted = true;
                 }
+                if(!sessionStarted){
+                    updateSession(context, ""+MainActivity.code.getText());
+                }
+
                 if(!MainActivity.isAirplaneModeOn(context) && sessionStarted){
                     //post call id, user disabled airplane mode
                     updateSession(context, ""+MainActivity.code.getText());
