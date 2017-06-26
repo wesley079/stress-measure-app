@@ -111,15 +111,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onStop() {
         super.onStop();
-        Log.d("wesley_d", "user not active");
-        sendNotification("Importantant Reminder", "Enabled airplane mode already? You are losing time!");
     }
 
 
     private void sendNotification(String Title, String Message){
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.notification_icon)
+                        .setSmallIcon(R.drawable.ic_track_changes_black_24dp)
                         .setContentTitle(Title)
                         .setContentText(Message);
         // Creates an explicit intent for an Activity in your app
@@ -150,15 +148,13 @@ public class MainActivity extends AppCompatActivity {
     void PostData(Context context, String code) {
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(context);
-        String url = "http://192.168.1.106:8000/checkConnectionCode?code=" + code;
+        String url = "http://prototype3-devthis.wesleykroon.nl/checkConnectionCode?code=" + code;
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Log.d("wesley_d", response);
-
                         if(response.equals("false")){
                             //connection doesn't exist
                             connected = false;

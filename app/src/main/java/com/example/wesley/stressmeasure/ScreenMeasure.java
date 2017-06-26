@@ -3,6 +3,7 @@ package com.example.wesley.stressmeasure;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.CountDownTimer;
@@ -42,6 +43,7 @@ public class ScreenMeasure extends Service {
     private int sessionPaused = 0;
     private boolean sessionStarted = false;
 
+    private boolean screenOn = false;
 
     static public int getMinutes(){
         return minutes;
@@ -50,7 +52,6 @@ public class ScreenMeasure extends Service {
     @Override
     public void onCreate() {
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        Log.i(TAG, "Service onCreate");
         if(isRunning){
             return;
         }
@@ -63,24 +64,38 @@ public class ScreenMeasure extends Service {
         final Handler mhandler = new Handler();
         mhandler.postDelayed(new Runnable(){
             public void run(){
+
+                //android screen on
                 PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
                 boolean isScreenOn = pm.isScreenOn();
-                //Log.d("wesley_d", "" + isScreenOn);
-                if(isScreenOn){
-                    //Log.d("wesley_d", "Secondes over: " + minutes);
-                    //Log.d("wesley_d", "Minuten over: " + (int) Math.ceil(minutes/60));
-                }
-                if(!isScreenOn){
-                    minutes--;
-                }
-                if(MainActivity.isAirplaneModeOn(context) && !sessionStarted){
+
+                //start checks
+                if(MainActivity.isAirplaneModeOn(context)) {
+                    if (isScreenOn) {
+                        if (!screenOn) {
+                            //new registerd screen on
+                            unlockedAmount++;
+                        }
+                        //screen on for 1 extra second
+                        unlockedSeconds++;
+                        screenOn = true;
+                    }
+                    if (!isScreenOn) {
+                        //screen went off
+                        screenOn = false;
+                    }
+
+                    //check if session has to be ended
                     sessionStarted = true;
+                    //Log.d("wesley_d", "started");
                 }
+
+                //send signals
                 if(!sessionStarted){
-                    Log.d("Wesley_d", "sending signal");
                     updateSession(context, ""+MainActivity.code.getText());
                 }
 
+                //attempt to stop session
                 if(!MainActivity.isAirplaneModeOn(context) && sessionStarted){
                     //post call id, user disabled airplane mode
                     updateSession(context, ""+MainActivity.code.getText());
@@ -91,8 +106,13 @@ public class ScreenMeasure extends Service {
                     sessionPaused = 0;
                 }
 
+
+                //stop session
                 if(sessionPaused == 30){
                     endSession(context, ""+MainActivity.code.getText());
+
+                    Log.d("wesley_d", ""+unlockedSeconds);
+                    Log.d("wesley_d", ""+unlockedAmount);
                 }
                 mhandler.postDelayed(this, 1000);
             }
@@ -102,15 +122,12 @@ public class ScreenMeasure extends Service {
     void endSession(Context context, String code) {
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(context);
-        String url = "http://192.168.1.106:8000/checkConnectionCode?end=true&code=" + code;
-
+        String url = "http://prototype3-devthis.wesleykroon.nl/endSession?code=" + code + "&seconds=" + unlockedSeconds + "&screen=" + unlockedAmount;
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Log.d("wesley_d", response + MainActivity.code);
-
                         if(response.equals("false")){
                             //connection doesn't exist
 
@@ -127,7 +144,7 @@ public class ScreenMeasure extends Service {
                 Log.d("wesley_d", ""+error);
             }
         });
-// Add the request to the RequestQueue.
+        // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
 
@@ -135,7 +152,7 @@ public class ScreenMeasure extends Service {
     void updateSession(Context context, String code) {
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(context);
-        String url = "http://192.168.1.106:8000/checkConnectionCode?end=false&code=" + code;
+        String url = "http://prototype3-devthis.wesleykroon.nl/checkConnectionCode?end=false&code=" + code;
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -171,7 +188,7 @@ public class ScreenMeasure extends Service {
     private void createNotification(String message) {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.notification_icon)
+                        .setSmallIcon(R.drawable.ic_track_changes_black_24dp)
                         .setContentTitle("Stress Measure Update")
                         .setContentText(message);
         // Creates an explicit intent for an Activity in your app
