@@ -122,7 +122,7 @@ public class ScreenMeasure extends Service {
     void endSession(Context context, String code) {
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(context);
-        String url = "http://prototype3-devthis.wesleykroon.nl/endSession?code=" + code + "&seconds=" + unlockedSeconds + "&screen=" + unlockedAmount;
+        String url = "http://stressmeasure.wesleykroon.nl/endSession?code=" + code + "&seconds=" + unlockedSeconds + "&screen=" + unlockedAmount;
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
@@ -152,7 +152,7 @@ public class ScreenMeasure extends Service {
     void updateSession(Context context, String code) {
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(context);
-        String url = "http://prototype3-devthis.wesleykroon.nl/checkConnectionCode?end=false&code=" + code;
+        String url = "http://stressmeasure.wesleykroon.nl/checkConnectionCode?end=false&code=" + code;
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,

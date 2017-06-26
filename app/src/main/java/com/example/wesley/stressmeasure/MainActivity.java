@@ -148,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
     void PostData(Context context, String code) {
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(context);
-        String url = "http://prototype3-devthis.wesleykroon.nl/checkConnectionCode?code=" + code;
+        String url = "http://stressmeasure.wesleykroon.nl/checkConnectionCode?code=" + code;
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
